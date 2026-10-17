@@ -1,168 +1,246 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Безопасный выгул</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Безопасный выгул | Солнцево</title>
+    <!-- Подключаем современный шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            padding: 0;
         }
-        h1 { color: white; text-align: center; font-size: 36px; }
-        p { color: white; text-align: center; font-size: 18px; }
-        h2 { color: white; margin-top: 30px; }
-        .counter {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a; /* Тёмный космический фон */
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        header {
             text-align: center;
-            font-size: 24px;
-            color: #c0392b;
-            font-weight: bold;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+            animation: fadeIn 1s ease;
+        }
+        h1 {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .counter {
+            font-size: 18px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px); /* Эффект стекла */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 1s ease;
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         #map {
-            width: 100%; height: 400px;
-            border: 2px solid #333;
-            border-radius: 10px;
-            margin-top: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            width: 100%;
+            height: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         form {
-            background: white; padding: 15px;
-            border-radius: 10px; margin-top: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         input {
-            padding: 8px; width: 250px;
-            margin-right: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border 0.3s;
+        }
+        input:focus {
+            border-color: #38bdf8;
         }
         button {
-            padding: 8px 15px;
-            background: #c0392b; color: white;
-            border: none; border-radius: 5px;
+            padding: 12px 24px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         button:hover {
-            background: #e74c3c;
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
         }
         ul {
-            background: white; padding: 15px;
-            border-radius: 10px; margin-top: 20px;
             list-style: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
         li {
-            margin-bottom: 10px; color: #c0392b;
-            padding: 8px; border-bottom: 1px solid #eee;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid #ef4444; /* Красная полоска слева */
+            color: #cbd5e1;
+            transition: background 0.3s;
         }
-        .contacts {
-            background: white; padding: 15px;
-            border-radius: 10px; margin-top: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        li:hover {
+            background: rgba(15, 23, 42, 0.8);
         }
-        .contacts p { color: #333; text-align: left; margin: 5px 0; }
-        .phone { color: #c0392b; font-weight: bold; }
-        .photo-block {
-            background: white; padding: 15px;
-            border-radius: 10px; margin-top: 20px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
         }
-        .photo-block img {
-            width: 100%; max-width: 400px;
-            border-radius: 10px;
-            margin-top: 10px;
+        .contact-item {
+            background: rgba(15, 23, 42, 0.4);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #38bdf8;
         }
-        .photo-block p { color: #333; text-align: center; }
+        .contact-item strong {
+            display: block;
+            color: #38bdf8;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .contact-item span {
+            font-size: 16px;
+            color: #cbd5e1;
+        }
+        .photo-placeholder {
+            width: 100%;
+            height: 200px;
+            background: rgba(15, 23, 42, 0.4);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
         .footer {
             text-align: center;
-            color: white;
-            margin-top: 30px;
+            color: #64748b;
             font-size: 14px;
-        }
-        .search {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
             margin-top: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
-        .search input {
-            width: 100%;
-            max-width: 400px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .up-button {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: #c0392b;
-            color: white;
-            border: none;
-            border-radius: 50%;
             width: 50px;
             height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            color: white;
             font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            transition: all 0.3s;
-        }
-        .up-button:hover {
-            background: #e74c3c;
-            transform: scale(1.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 <body>
-    <h1>Безопасный выгул в Солнцево</h1>
-    <p>Карта опасных мест для выгула собак.</p>
+    <div class="container">
+        <header>
+            <h1>Безопасный выгул</h1>
+            <p class="counter" id="counter">Опасных мест в Солнцево: 3</p>
+        </header>
 
-    <div class="counter" id="counter">Опасных мест: 3</div>
+        <div class="card">
+            <div id="map"></div>
+        </div>
 
-    <div id="map"></div>
+        <div class="card">
+            <h2>📍 Добавить опасное место</h2>
+            <form id="addForm">
+                <input type="text" id="placeName" placeholder="Название (например, Двор на Волынской)">
+                <input type="text" id="placeDesc" placeholder="Описание (что нашли)">
+                <button type="button" onclick="addPlace()">Добавить</button>
+            </form>
+        </div>
 
-    <h2>Добавить опасное место:</h2>
-    <form id="addForm">
-        <input type="text" id="placeName" placeholder="Название места">
-        <input type="text" id="placeDesc" placeholder="Описание">
-        <button type="button" onclick="addPlace()">Добавить</button>
-    </form>
+        <div class="card">
+            <h2>🔍 Поиск по списку</h2>
+            <input type="text" id="searchInput" placeholder="Введи название..." oninput="searchPlaces()" style="width: 100%;">
+        </div>
 
-    <h2>Поиск по списку:</h2>
-    <div class="search">
-        <input type="text" id="searchInput" placeholder="Введи название..." oninput="searchPlaces()">
-    </div>
+        <div class="card">
+            <h2>🖼 Фото опасных мест</h2>
+            <div class="photo-placeholder">
+                Здесь скоро появятся фото от жителей
+            </div>
+        </div>
 
-    <h2>Фото опасных мест:</h2>
-    <div class="photo-block">
-        <p>Здесь будут фото от жителей.</p>
-        <img src="https://via.placeholder.com/400x200?text=Фото+опасного+места" alt="Фото места">
-    </div>
+        <div class="card">
+            <h2>🚨 Экстренные контакты</h2>
+            <div class="contacts-grid">
+                <div class="contact-item">
+                    <strong>Ветеринарная клиника</strong>
+                    <span>+7 (495) 123-45-67</span>
+                </div>
+                <div class="contact-item">
+                    <strong>Полиция</strong>
+                    <span>102</span>
+                </div>
+                <div class="contact-item">
+                    <strong>Скорая</strong>
+                    <span>103</span>
+                </div>
+            </div>
+        </div>
 
-    <h2>Экстренные контакты:</h2>
-    <div class="contacts">
-        <p>🚨 Если собака отравилась — звони:</p>
-        <p class="phone">Ветеринарная клиника: +7 (495) 123-45-67</p>
-        <p class="phone">Полиция: 102</p>
-        <p class="phone">Скорая: 103</p>
-    </div>
+        <div class="card">
+            <h2>📋 Список опасных мест</h2>
+            <ul id="placesList">
+                <li>ул. Авиаторов — нашли отраву (15.10.2026)</li>
+                <li>Парк у пруда — подозрительные куски мяса (16.10.2026)</li>
+                <li>Двор на ул. Волынской — предупреждение жителей (16.10.2026)</li>
+            </ul>
+        </div>
 
-    <h2>Список опасных мест:</h2>
-    <ul id="placesList">
-        <li>ул. Авиаторов — нашли отраву (15.10.2026)</li>
-        <li>Парк у пруда — подозрительные куски мяса (16.10.2026)</li>
-        <li>Двор на ул. Волынской — предупреждение жителей (16.10.2026)</li>
-    </ul>
-
-    <div class="footer">
-        Сайт создан Львом. 2026 год.
+        <div class="footer">
+            Сайт создан Львом. 2026 год.
+        </div>
     </div>
 
     <button class="up-button" onclick="window.scrollTo(0,0)">↑</button>
@@ -215,7 +293,7 @@
                 li.textContent = name + ' — ' + desc + ' (' + date + ')';
                 list.appendChild(li);
                 count = count + 1;
-                document.getElementById('counter').textContent = 'Опасных мест: ' + count;
+                document.getElementById('counter').textContent = 'Опасных мест в Солнцево: ' + count;
                 document.getElementById('placeName').value = '';
                 document.getElementById('placeDesc').value = '';
             };
