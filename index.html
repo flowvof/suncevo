@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Безопасный выгул | Солнцево</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=113675942', 'ym');
+
+        ym(113675942, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/113675942" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -16,7 +31,7 @@
             padding: 40px 20px;
         }
         .container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
-        header { text-align: center; margin-bottom: 10px; animation: fadeIn 1s ease; }
+        header { text-align: center; margin-bottom: 10px; }
         h1 {
             font-size: 42px; font-weight: 800;
             background: linear-gradient(90deg, #38bdf8, #818cf8);
@@ -30,17 +45,17 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px; padding: 24px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 1s ease;
         }
         h2 { font-size: 20px; font-weight: 600; margin-bottom: 15px; color: #e2e8f0; display: flex; align-items: center; gap: 10px; }
-        #map { width: 100%; height: 400px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); cursor: crosshair; }
+        #map { width: 100%; height: 400px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
         form { display: flex; gap: 10px; flex-wrap: wrap; }
-        input {
+        input, textarea {
             flex: 1; min-width: 200px; padding: 12px 16px;
             background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px; color: white; font-family: 'Inter', sans-serif; outline: none; transition: border 0.3s;
         }
-        input:focus { border-color: #38bdf8; }
+        textarea { width: 100%; min-height: 80px; resize: vertical; }
+        input:focus, textarea:focus { border-color: #38bdf8; }
         button {
             padding: 12px 24px; background: linear-gradient(90deg, #38bdf8, #818cf8);
             color: white; font-weight: 600; border: none; border-radius: 8px; cursor: pointer;
@@ -51,25 +66,23 @@
         li {
             padding: 12px; background: rgba(15, 23, 42, 0.4); border-radius: 8px;
             margin-bottom: 8px; border-left: 4px solid #ef4444; color: #cbd5e1;
-            display: flex; justify-content: space-between; align-items: center;
         }
-        .delete-btn {
-            background: transparent; color: #64748b; border: none; font-size: 20px; cursor: pointer; padding: 0 10px;
+        .review-item {
+            border-left: 4px solid #38bdf8;
+            padding: 12px; background: rgba(15, 23, 42, 0.4); border-radius: 8px; margin-bottom: 8px;
         }
-        .delete-btn:hover { color: #ef4444; }
+        .review-author { font-weight: bold; color: #38bdf8; margin-bottom: 4px; }
         .contacts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
         .contact-item { background: rgba(15, 23, 42, 0.4); padding: 15px; border-radius: 8px; border-left: 4px solid #38bdf8; }
         .contact-item strong { display: block; color: #38bdf8; font-size: 14px; margin-bottom: 5px; }
         .contact-item span { font-size: 16px; color: #cbd5e1; }
         .footer { text-align: center; color: #64748b; font-size: 14px; margin-top: 20px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .up-button {
             position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; border-radius: 50%;
             background: linear-gradient(135deg, #38bdf8, #818cf8); color: white; font-size: 24px;
             display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             cursor: pointer; border: none;
         }
-        .coords-display { font-size: 12px; color: #94a3b8; margin-top: 5px; width: 100%; }
     </style>
 </head>
 <body>
@@ -89,25 +102,20 @@
             <form id="addForm">
                 <input type="text" id="placeName" placeholder="Название (например, Двор на Волынской)">
                 <input type="text" id="placeDesc" placeholder="Что нашли?">
-                <div class="coords-display" id="coordsText">Координаты не выбраны (кликни на карту)</div>
                 <button type="button" onclick="addPlace()">Добавить</button>
             </form>
         </div>
 
         <div class="card">
-            <h2>📋 Список опасных мест</h2>
-            <ul id="placesList">
-                <!-- Сюда будут добавляться места -->
-            </ul>
-        </div>
-
-        <div class="card" id="about">
-            <h2>ℹ️ О проекте</h2>
-            <p style="color: #cbd5e1; line-height: 1.6;">
-                Этот сайт создан для жителей района Солнцево. Его цель — предупредить владельцев собак об опасных местах, где были найдены отравленные приманки или другие угрозы.
-                <br><br>
-                Если вы нашли опасный предмет — добавьте его на карту. Вместе мы сделаем выгул наших питомцев безопаснее!
-            </p>
+            <h2>💬 Отзывы жителей</h2>
+            <form id="reviewForm">
+                <input type="text" id="reviewName" placeholder="Твое имя">
+                <textarea id="reviewText" placeholder="Напиши, что думаешь об этом сайте..."></textarea>
+                <button type="button" onclick="addReview()" style="width: 100%;">Оставить отзыв</button>
+            </form>
+            <div id="reviewsList" style="margin-top: 20px;">
+                <!-- Отзывы будут добавляться сюда -->
+            </div>
         </div>
 
         <div class="card">
@@ -119,6 +127,13 @@
             </div>
         </div>
 
+        <div class="card">
+            <h2>📋 Список опасных мест</h2>
+            <ul id="placesList">
+                <!-- Сюда добавляются места -->
+            </ul>
+        </div>
+
         <div class="footer">Сайт создан Львом. 2026 год.</div>
     </div>
 
@@ -126,11 +141,13 @@
 
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
     <script>
-        var selectedCoords = [55.65, 37.4]; // Координаты по умолчанию
+        var selectedCoords = [55.65, 37.4];
         var map;
-
-        // Загружаем сохраненные места из памяти браузера
         var places = JSON.parse(localStorage.getItem('myPlaces')) || [];
+        var reviews = JSON.parse(localStorage.getItem('myReviews')) || [
+            { author: "Анна", text: "Отличная идея! Наконец-то кто-то сделал такую карту." },
+            { author: "Максим", text: "Спасибо, теперь буду знать, где не гулять с собакой." }
+        ];
         var count = places.length;
 
         function updateCounter() {
@@ -139,22 +156,24 @@
 
         function renderList() {
             var list = document.getElementById('placesList');
-            list.innerHTML = ''; // Очищаем список
+            list.innerHTML = ''; 
             places.forEach(function(place, index) {
                 var li = document.createElement('li');
-                li.innerHTML = `
-                    <span><strong>${place.name}</strong> — ${place.desc}</span>
-                    <button class="delete-btn" onclick="deletePlace(${index})">✖</button>
-                `;
+                li.innerHTML = `<span><strong>${place.name}</strong> — ${place.desc}</span>`;
                 list.appendChild(li);
             });
             updateCounter();
         }
 
-        function deletePlace(index) {
-            places.splice(index, 1); // Удаляем из массива
-            localStorage.setItem('myPlaces', JSON.stringify(places)); // Сохраняем
-            renderList();
+        function renderReviews() {
+            var list = document.getElementById('reviewsList');
+            list.innerHTML = '';
+            reviews.forEach(function(review) {
+                var div = document.createElement('div');
+                div.className = 'review-item';
+                div.innerHTML = `<div class="review-author">${review.author}</div><div>${review.text}</div>`;
+                list.appendChild(div);
+            });
         }
 
         ymaps.ready(function () {
@@ -163,13 +182,10 @@
                 zoom: 12
             });
 
-            // Обработка клика по карте
             map.events.add('click', function (e) {
                 var coords = e.get('coords');
                 selectedCoords = coords;
-                document.getElementById('coordsText').textContent = 'Выбраны координаты: ' + coords[0].toFixed(4) + ', ' + coords[1].toFixed(4);
                 
-                // Ставим временную метку
                 if (window.tempMark) { map.geoObjects.remove(window.tempMark); }
                 window.tempMark = new ymaps.Placemark(coords, {
                     hintContent: 'Новое место'
@@ -177,7 +193,6 @@
                 map.geoObjects.add(window.tempMark);
             });
 
-            // Добавляем сохраненные метки на карту
             places.forEach(function(place) {
                 var mark = new ymaps.Placemark([place.lat, place.lon], {
                     hintContent: place.name,
@@ -186,7 +201,8 @@
                 map.geoObjects.add(mark);
             });
 
-            renderList(); // Показываем список при загрузке
+            renderList();
+            renderReviews();
 
             window.addPlace = function() {
                 var name = document.getElementById('placeName').value;
@@ -197,34 +213,39 @@
                     return;
                 }
 
-                // Создаем объект места
-                var newPlace = {
-                    name: name,
-                    desc: desc,
-                    lat: selectedCoords[0],
-                    lon: selectedCoords[1]
-                };
-
-                // Добавляем в массив и сохраняем
+                var newPlace = { name: name, desc: desc, lat: selectedCoords[0], lon: selectedCoords[1] };
                 places.push(newPlace);
                 localStorage.setItem('myPlaces', JSON.stringify(places));
 
-                // Ставим красную метку на карту
                 var newMark = new ymaps.Placemark([newPlace.lat, newPlace.lon], {
                     hintContent: newPlace.name,
                     balloonContent: newPlace.desc
                 }, { preset: 'islands#redIcon' });
                 map.geoObjects.add(newMark);
 
-                // Убираем временную синюю метку
                 if (window.tempMark) { map.geoObjects.remove(window.tempMark); }
 
-                // Очищаем форму и обновляем список
                 document.getElementById('placeName').value = '';
                 document.getElementById('placeDesc').value = '';
-                document.getElementById('coordsText').textContent = 'Координаты не выбраны (кликни на карту)';
-                
                 renderList();
+            };
+
+            window.addReview = function() {
+                var author = document.getElementById('reviewName').value;
+                var text = document.getElementById('reviewText').value;
+                
+                if (author == '' || text == '') {
+                    alert('Заполни имя и отзыв!');
+                    return;
+                }
+
+                var newReview = { author: author, text: text };
+                reviews.push(newReview);
+                localStorage.setItem('myReviews', JSON.stringify(reviews));
+
+                document.getElementById('reviewName').value = '';
+                document.getElementById('reviewText').value = '';
+                renderReviews();
             };
         });
     </script>
