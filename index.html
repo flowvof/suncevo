@@ -14,7 +14,6 @@
             for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
             k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
         })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=113675942', 'ym');
-
         ym(113675942, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/113675942" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
@@ -54,6 +53,7 @@
             background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px; color: white; font-family: 'Inter', sans-serif; outline: none; transition: border 0.3s;
         }
+        input[type="file"] { color: #94a3b8; padding: 8px; }
         textarea { width: 100%; min-height: 80px; resize: vertical; }
         input:focus, textarea:focus { border-color: #38bdf8; }
         button {
@@ -83,6 +83,9 @@
             display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             cursor: pointer; border: none;
         }
+        .place-img { max-width: 100%; max-height: 300px; border-radius: 8px; margin-top: 10px; display: block; }
+        .share-btn { background: #25D366; color: white; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .share-btn:hover { background: #128C7E; }
     </style>
 </head>
 <body>
@@ -102,8 +105,17 @@
             <form id="addForm">
                 <input type="text" id="placeName" placeholder="Название (например, Двор на Волынской)">
                 <input type="text" id="placeDesc" placeholder="Что нашли?">
+                <input type="file" id="placeImage" accept="image/*">
                 <button type="button" onclick="addPlace()">Добавить</button>
             </form>
+        </div>
+
+        <div class="card" style="text-align: center;">
+            <h2>📢 Поделиться сайтом</h2>
+            <p style="margin-bottom: 15px; color: #94a3b8;">Помоги сделать район безопаснее — скинь ссылку друзьям!</p>
+            <button class="share-btn" onclick="shareSite()">
+                <span>Отправить в WhatsApp</span>
+            </button>
         </div>
 
         <div class="card">
@@ -113,15 +125,12 @@
                 <textarea id="reviewText" placeholder="Напиши, что думаешь об этом сайте..."></textarea>
                 <button type="button" onclick="addReview()" style="width: 100%;">Оставить отзыв</button>
             </form>
-            <div id="reviewsList" style="margin-top: 20px;">
-                <!-- Отзывы будут добавляться сюда -->
-            </div>
+            <div id="reviewsList" style="margin-top: 20px;"></div>
         </div>
 
         <div class="card">
             <h2>🚨 Экстренные контакты</h2>
             <div class="contacts-grid">
-                <!-- ТУТ ИЗМЕНЕН НОМЕР НА РЕАЛЬНЫЙ -->
                 <div class="contact-item"><strong>Ветеринарная клиника</strong><span>+7 (495) 232-12-32</span></div>
                 <div class="contact-item"><strong>Полиция</strong><span>102</span></div>
                 <div class="contact-item"><strong>Скорая</strong><span>103</span></div>
@@ -130,9 +139,7 @@
 
         <div class="card">
             <h2>📋 Список опасных мест</h2>
-            <ul id="placesList">
-                <!-- Сюда добавляются места -->
-            </ul>
+            <ul id="placesList"></ul>
         </div>
 
         <div class="footer">Сайт создан Львом. 2026 год.</div>
@@ -145,10 +152,7 @@
         var selectedCoords = [55.65, 37.4];
         var map;
         var places = JSON.parse(localStorage.getItem('myPlaces')) || [];
-        var reviews = JSON.parse(localStorage.getItem('myReviews')) || [
-            { author: "Анна", text: "Отличная идея! Наконец-то кто-то сделал такую карту." },
-            { author: "Максим", text: "Спасибо, теперь буду знать, где не гулять с собакой." }
-        ];
+        var reviews = JSON.parse(localStorage.getItem('myReviews')) || [];
         var count = places.length;
 
         function updateCounter() {
@@ -160,7 +164,8 @@
             list.innerHTML = ''; 
             places.forEach(function(place, index) {
                 var li = document.createElement('li');
-                li.innerHTML = `<span><strong>${place.name}</strong> — ${place.desc}</span>`;
+                var imgHtml = place.image ? `<img src="${place.image}" class="place-img">` : '';
+                li.innerHTML = `<span><strong>${place.name}</strong> — ${place.desc}${imgHtml}</span>`;
                 list.appendChild(li);
             });
             updateCounter();
@@ -175,6 +180,12 @@
                 div.innerHTML = `<div class="review-author">${review.author}</div><div>${review.text}</div>`;
                 list.appendChild(div);
             });
+        }
+
+        function shareSite() {
+            var url = "https://flowwof.github.io/suncevo/";
+            var text = "Привет! Посмотри сайт 'Безопасный выгул' — там карта опасных мест для собак в Солнцево. Помоги сделать район безопаснее!";
+            window.open("https://wa.me/?text=" + encodeURIComponent(text + " " + url), '_blank');
         }
 
         ymaps.ready(function () {
@@ -208,27 +219,56 @@
             window.addPlace = function() {
                 var name = document.getElementById('placeName').value;
                 var desc = document.getElementById('placeDesc').value;
+                var fileInput = document.getElementById('placeImage');
                 
                 if (name == '' || desc == '') {
                     alert('Заполни название и описание!');
                     return;
                 }
 
-                var newPlace = { name: name, desc: desc, lat: selectedCoords[0], lon: selectedCoords[1] };
-                places.push(newPlace);
-                localStorage.setItem('myPlaces', JSON.stringify(places));
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var imageData = e.target.result;
+                    var newPlace = { 
+                        name: name, desc: desc, lat: selectedCoords[0], lon: selectedCoords[1], image: imageData 
+                    };
+                    places.push(newPlace);
+                    localStorage.setItem('myPlaces', JSON.stringify(places));
 
-                var newMark = new ymaps.Placemark([newPlace.lat, newPlace.lon], {
-                    hintContent: newPlace.name,
-                    balloonContent: newPlace.desc
-                }, { preset: 'islands#redIcon' });
-                map.geoObjects.add(newMark);
+                    var newMark = new ymaps.Placemark([newPlace.lat, newPlace.lon], {
+                        hintContent: newPlace.name,
+                        balloonContent: newPlace.desc
+                    }, { preset: 'islands#redIcon' });
+                    map.geoObjects.add(newMark);
 
-                if (window.tempMark) { map.geoObjects.remove(window.tempMark); }
+                    if (window.tempMark) { map.geoObjects.remove(window.tempMark); }
 
-                document.getElementById('placeName').value = '';
-                document.getElementById('placeDesc').value = '';
-                renderList();
+                    document.getElementById('placeName').value = '';
+                    document.getElementById('placeDesc').value = '';
+                    document.getElementById('placeImage').value = '';
+                    renderList();
+                };
+                
+                if (fileInput.files.length > 0) {
+                    reader.readAsDataURL(fileInput.files[0]);
+                } else {
+                    var newPlace = { name: name, desc: desc, lat: selectedCoords[0], lon: selectedCoords[1], image: null };
+                    places.push(newPlace);
+                    localStorage.setItem('myPlaces', JSON.stringify(places));
+                    
+                    var newMark = new ymaps.Placemark([newPlace.lat, newPlace.lon], {
+                        hintContent: newPlace.name,
+                        balloonContent: newPlace.desc
+                    }, { preset: 'islands#redIcon' });
+                    map.geoObjects.add(newMark);
+
+                    if (window.tempMark) { map.geoObjects.remove(window.tempMark); }
+
+                    document.getElementById('placeName').value = '';
+                    document.getElementById('placeDesc').value = '';
+                    document.getElementById('placeImage').value = '';
+                    renderList();
+                }
             };
 
             window.addReview = function() {
