@@ -28,6 +28,12 @@
             color: white;
             min-height: 100vh;
             padding: 40px 20px;
+            /* Анимация появления */
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
         header { text-align: center; margin-bottom: 10px; }
@@ -77,15 +83,25 @@
         .contact-item strong { display: block; color: #38bdf8; font-size: 14px; margin-bottom: 5px; }
         .contact-item span { font-size: 16px; color: #cbd5e1; }
         .footer { text-align: center; color: #64748b; font-size: 14px; margin-top: 20px; }
+        
+        /* Красивая кнопка вверх */
         .up-button {
             position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; border-radius: 50%;
             background: linear-gradient(135deg, #38bdf8, #818cf8); color: white; font-size: 24px;
             display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            cursor: pointer; border: none;
+            cursor: pointer; border: none; transition: transform 0.2s;
         }
+        .up-button:hover { transform: scale(1.1); }
+        
         .place-img { max-width: 100%; max-height: 300px; border-radius: 8px; margin-top: 10px; display: block; }
         .share-btn { background: #25D366; color: white; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .share-btn:hover { background: #128C7E; }
+        
+        /* Счетчик посещений */
+        .visit-counter {
+            font-size: 16px; color: #cbd5e1; margin-top: 10px; text-align: center;
+            background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -93,6 +109,7 @@
         <header>
             <h1>Безопасный выгул</h1>
             <p class="counter" id="counter">Опасных мест в Солнцево: 0</p>
+            <div class="visit-counter" id="visitCounter">Загрузка статистики...</div>
         </header>
 
         <div class="card">
@@ -145,10 +162,17 @@
         <div class="footer">Сайт создан Львом. 2026 год.</div>
     </div>
 
-    <button class="up-button" onclick="window.scrollTo(0,0)">↑</button>
+    <button class="up-button" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</button>
 
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
     <script>
+        // 1. Счетчик посещений (имитация, так как нет сервера)
+        // Мы будем брать данные из localStorage и прибавлять 1 при заходе
+        var visits = parseInt(localStorage.getItem('siteVisits')) || 0;
+        visits += 1;
+        localStorage.setItem('siteVisits', visits);
+        document.getElementById('visitCounter').innerText = 'Вы посетили сайт: ' + visits + ' раз(а)';
+
         var selectedCoords = [55.65, 37.4];
         var map;
         var places = JSON.parse(localStorage.getItem('myPlaces')) || [];
